@@ -1,0 +1,10 @@
+version: '2'
+
+services:
+  mongo:
+    container_name: mongoDB
+    image: 'mongo:3.6'
+    ports:
+      - '27017:27017'
+    volumes:
+      - '/home/andrey/web/files/data:/data/db'

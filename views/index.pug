@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+html(lang="en")
+    head
+        meta(charset="UTF-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        meta(http-equiv="X-UA-Compatible", content="ie=edge")
+        title Document
+        link(href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css", rel="stylesheet")
+        
+    body
+        .container
+            h1 File Upload
+            - if(typeof msg != 'udefined') {
+                - msg
+            - }
+            form(action="/upload", method="POST", enctype="multipart/form-data")
+                .file-field.input-filed
+                    .btn.grey
+                        spna File
+                        input(type="file", name="myImage")
+                    .file-path.validate
+                        input.file-path.validate(type="text", name="")
+                button.btn(type="submit") Submit
+            br
+            - if (typeof file != 'undefined') {
+                img(src=file, alt='image')
+            - } 
+            //- img(src="- typeof file!= 'undefined' ? file: ''", alt="")
+
+        script(src="https://code.jquery.com/jquery-3.3.1.min.js")
+        script(src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js")
