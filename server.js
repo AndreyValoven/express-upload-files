@@ -1,19 +1,21 @@
 const express = require('express');
+const AWS = require('aws-sdk');
 const pug = require('pug');
 const multer = require('multer');
 const path = require('path');
+const multerS3 = require('multer-s3');
 
-const storage = multer.diskStorage({
-    destination : './public/uploads',
-    filename: function(req, file, cd) {
-        console.log(req.my);
-        cd(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
-    }
+const config = new AWS.Config({
+    accessKeyId: '<id>',
+    secretAccessKey: '<key>',
+    region: '<region>'
 });
+
+const s3 = new AWS.S3();
 
 // Inti upload
 const upload = multer({
-    storage: storage,
+    storage: multer.memoryStorage(),
     fimits: {
         fileSizr: 5 * 1024 * 1024
     },
@@ -48,8 +50,7 @@ app.get('/', (req, res) => {
     res.render('index');
 });
 
-app.post('/upload', (req, res) => {
-    req.my = 'test';
+app.post('/upload',  (req, res) => {
     console.log('Upload image');
     upload(req, res, (err) => {
         if(err) {
@@ -58,13 +59,29 @@ app.post('/upload', (req, res) => {
                 msg: err
             });
         } else {
-            console.log(req.file);
-            res.render('index', {
-                file: `uploads/${req.file.filename}`
-            })
+            const file =  req.file.originalname;
+            const s3Params = {
+                Bucket: '<Bucket name>',
+                Body: req.file.buffer,
+                Key: file,
+                ContentType: req.file.mimetype,
+                ACL: 'public-read'
+            }
+
+            s3.putObject(s3Params , (err, data) => { 
+                if (err) return res.status(400).send(err);
+                console.log(data);
+            });
+
+            var params = {Bucket: '<Bucket name>', Key: file};
+            var url = s3.getSignedUrl('getObject', params);
+            console.log(url);
+            res.render('index' , {
+                file: `https://s3.eu-west-2.amazonaws.com/${ params.Bucket }/${ file }`
+            });
         }
     });
-
+    
 })
 
 
